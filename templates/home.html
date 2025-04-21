@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    {% load static %}  <!-- Load the static files template tag -->
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <h1>Welcome, {{ request.user.username|capfirst }}!</h1>
+
+    <ul>
+        <li><a href="{% url 'expense' %}"><i class="fa fa-dollar"></i> Expense Tracker</a></li>
+        <li><a href="{% url 'routine' %}"><i class="fa fa-calendar"></i> Daily Routine</a></li>
+        <li><a href="{% url 'future_plans' %}"><i class="fa fa-lightbulb-o"></i> Future Plans</a></li>
+        <li><a href="{% url 'analytics' %}"><i class="fa fa-bar-chart"></i> Analytics</a></li>
+        <li><a href="{% url 'login' %}"><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+
+    <footer>
+        <p>&copy; 2025 All rights reserved.</p>
+    </footer>
+</body>
+</html>

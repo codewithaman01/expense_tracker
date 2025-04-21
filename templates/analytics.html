@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analytics Overview</title>
+    {% load static %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/analytics.css' %}">
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back();">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    <button class="home-btn" onclick="window.location.href='/home'">
+        <i class="fas fa-home"></i>
+    </button>
+    <h2>Analytics Overview</h2>
+
+    <!-- Expenses Overview Section -->
+    <div class="chart-container">
+        <h3>Expenses Overview</h3>
+        <div class="chart-options">
+            <button id="daily-chart-btn">Daily</button>
+            <button id="monthly-chart-btn">Monthly</button>
+            <button id="yearly-chart-btn">Yearly</button>
+        </div>
+        <canvas id="expense-chart"></canvas>
+    </div>
+    <!-- Export Data Button -->
+    <div class="export-button">
+        <button id="export-pdf-btn">Export Data as PDF</button>
+    </div>
+
+    <script>
+        const expenseCtx = document.getElementById('expense-chart').getContext('2d');
+
+        const expenseChart = new Chart(expenseCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ expense_labels|safe }},
+                datasets: [{
+                    label: 'Expenses',
+                    data: {{ expense_values|safe }},
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: true,
+                    borderWidth: 1,
+                    barThickness: 40,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // If you have salary and fixed expense charts, you can add them similarly
+        // const salaryCtx = document.getElementById('salary-chart').getContext('2d');
+        // const fixedExpenseCtx = document.getElementById('fixed-expense-chart').getContext('2d');
+        
+        // const salaryChart = new Chart(salaryCtx, {
+        //     type: 'line',
+        //     data: {
+        //         labels: {{ salary_labels|safe }},
+        //         datasets: [{
+        //             label: 'Salaries',
+        //             data: {{ salary_values|safe }},
+        //             borderColor: 'rgba(54, 162, 235, 1)',
+        //             backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        //             fill: true,
+        //         }]
+        //     },
+        //     options: {
+        //         responsive: true,
+        //         scales: {
+        //             y: {
+        //                 beginAtZero: true
+        //             }
+        //         }
+        //     }
+        // });
+
+        // const fixedExpenseChart = new Chart(fixedExpenseCtx, {
+        //     type: 'line',
+        //     data: {
+        //         labels: {{ fixed_expense_labels|safe }},
+        //         datasets: [{
+        //             label: 'Fixed Expenses',
+        //             data: {{ fixed_expense_values|safe }},
+        //             borderColor: 'rgba(75, 192, 192, 1)',
+        //             backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        //             fill: true,
+        //         }]
+        //     },
+        //     options: {
+        //         responsive: true,
+        //         scales: {
+        //             y: {
+        //                 beginAtZero: true
+        //             }
+        //         }
+        //     }
+        // });
+    </script>
+</body>
+</html>

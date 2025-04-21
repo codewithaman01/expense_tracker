@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Routine</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Load static files -->
+    {% load static %}
+    <!-- Link to External CSS -->
+    <link rel="stylesheet" href="{% static 'css/routine.css' %}">
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back();">
+        <i class="fa fa-arrow-left"></i>
+    </button>
+    <button class="home-btn" onclick="window.location.href='/home'">
+        <i class="fas fa-home"></i>
+    </button>
+
+    <div class="container">
+        <div class="left-section">
+            <h2>Log Daily Routine</h2>
+            <form id="routineForm">
+                {% csrf_token %}
+                <input type="hidden" id="routine_id" name="routine_id" value="">
+
+                <label for="activity">Activity:</label>
+                <input type="text" id="activity" name="activity" required>
+
+                <label for="start_time">Start Time:</label>
+                <input type="time" id="start_time" name="start_time" required>
+
+                <label for="end_time">End Time:</label>
+                <input type="time" id="end_time" name="end_time" required>
+
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes" rows="3"></textarea>
+
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+
+        <div class="right-section">
+            <h2>Today's Summary</h2>
+            <div class="routine-summary" id="routineSummary">
+                {% for routine in routines %}
+                <div class="routine-item" data-id="{{ routine.id }}">
+                    <strong>{{ routine.activity }}</strong><br>
+                    {{ routine.start_time }} - {{ routine.end_time }}<br>
+                    Notes: {{ routine.notes }}<br>
+                    Date: {{ routine.date }}
+                    <div class="actions">
+                        <button class="edit-btn" type="button">Edit</button>
+                        <button class="delete-btn" type="button">Delete</button>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No routines logged yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/routine.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            // Set default start time to current time in IST
+            function getISTTime() {
+                const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' };
+                const time = new Date().toLocaleTimeString('en-GB', options); // Time in IST
+                return time;
+            }
+
+            const currentTime = getISTTime();
+            $('#start_time').val(currentTime); // Set the start time input value
+
+            // Submit form via AJAX
+            $('#routineForm').on('submit', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: "{% url 'routine' %}",
+                    method: "POST",
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("Something went wrong.");
+                    }
+                });
+            });
+
+            // Edit routine
+            $('.edit-btn').on('click', function () {
+                const item = $(this).closest('.routine-item');
+                const id = item.data('id');
+                $.get(`/routine/get/${id}/`, function (data) {
+                    $('#routine_id').val(data.id);
+                    $('#activity').val(data.activity);
+                    $('#start_time').val(data.start_time);
+                    $('#end_time').val(data.end_time);
+                    $('#notes').val(data.notes);
+                    $('#date').val(data.date);
+                });
+            });
+
+            // Delete routine
+            $('.delete-btn').on('click', function () {
+                if (!confirm('Are you sure you want to delete this entry?')) return;
+
+const id = $(this).closest('.routine-item').data('id');
+$.post(`/routine/delete/${id}/`, {
+    csrfmiddlewaretoken: '{{ csrf_token }}'
+}, function () {
+    location.reload();
+});
+});
+});
+</script>
+</body>
+</html>

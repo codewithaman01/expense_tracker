@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/expense.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back();">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    <button class="home-btn" onclick="window.location.href='/home'">
+        <i class="fas fa-home"></i>
+    </button>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+
+        <div class="row">
+            <div class="left-column">
+                <h2>Financial Summary</h2>
+                <p>Total Spent Till Date: ₹{{ total_amount }}</p>
+                <p id="netWorthDisplay">Net Worth: ₹{{ net_worth }}</p> <!-- Updated to have an ID for easy access -->
+                
+                <h2>Add Salary/Pocket Money</h2>
+                <button id="toggleSalaryForm" onclick="toggleSalaryForm()">Add Salary/Pocket Money</button>
+                <div id="addSalaryForm" style="display: none;">
+                    <form method="POST" id="salaryForm">
+                        {% csrf_token %}
+                        <div>
+                            <label for="salary-amount">Salary Amount:</label>
+                            <input type="number" name="amount" id="salary-amount" required>
+                        </div>
+                        <div>
+                            <label for="salary-date">Date:</label>
+                            <input type="date" name="date" id="salary-date" required>
+                        </div>
+                        <button type="submit">Add Salary/Pocket Money</button>
+                    </form>
+                </div>
+                <h2>
+                    <button id="toggleSalaryTable" onclick="toggleSalaryTable()">Show Salaries/Pocket Money</button>
+                </h2>
+                <div id="salaryTable" style="display: none;">
+                    <h2>Your Salaries/Pocket Money</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for salary in salaries %}
+                                <tr>
+                                    <td>{{ salary.date|date:"M Y" }}</td>
+                                    <td class="salary-amount">₹{{ salary.amount }}</td>
+                                    <td>
+                                        <a href="#" class="edit-button" onclick="openEditSalaryModal({{ salary.id }}); return false;">Edit</a> | 
+                                        <a href="{% url 'delete_salary' salary.id %}" class="delete-button" onclick="return confirm('Are you sure you want to delete this salary?');">Delete</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <h2>Add New Expense</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div>
+                        <label for="amount">Amount:</label>
+                        <input type="number" name="amount" required>
+                    </div>
+                    <div>
+                        <label for="description">Description:</label>
+                        <input type="text" name="description" required>
+                    </div>
+                    <div>
+                        <label for="payment_method">Payment Method:</label>
+                        <select name="payment_method" required>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Online Payment">Online Payment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="date">Date:</label>
+                        <input type="date" name="date" required>
+                    </div>
+                    <div>
+                        <label for="borrowed">Borrowed:</label>
+                        <input type="checkbox" name="borrowed">
+                    </div>
+                    <button type="submit">Add Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <h2>
+            <button class="toggle-button" id="toggleExpenses" onclick="toggleExpenses()">Your Expenses</button>
+        </h2>
+        <div id="expensesSection" style="display: none;">
+            <h2>Your Expenses</h2>
+            {% for month_year, expenses, total_spent, salary, remaining in totals_by_month %}
+                <h3>{{ month_year }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Borrowed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense.date|date:"M Y" }}</td>
+                                <td class="spent-amount">₹{{ expense.amount }}</td>
+                                <td>{{ expense.description }}</td>
+                                <td>{{ expense.payment_method }}</td>
+                                <td>{{ expense.borrowed|yesno:"Yes,No" }}</td>
+                                <td>
+                                    <a href="#" onclick="openEditExpenseModal({{ expense.id }}); return false;" class="edit-button">Edit</a> |
+                                    <a href="{% url 'delete_expense' expense.id %}" class="delete-button" onclick="return confirm('Are you sure you want to delete this expense?');">Delete</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p>
+                    Total Spent: <span class="total-spent">₹{{ total_spent }}</span> | 
+                    This Month Salary: <span class="this-month-salary">₹{{ salary }}</span> | 
+                    Remaining: 
+                    <span class="{% if remaining < 0 %}remaining-negative{% else %}remaining{% endif %}">₹{{ remaining }}</span>
+                </p>
+                {% endfor %}
+            </div>
+    
+            <!-- Edit Expense Modal -->
+            <div id="editExpenseModal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeEditExpenseModal()">&times;</span>
+                    <h2>Edit Expense</h2>
+                    <form id="editExpenseForm" method="POST" action="{% url 'edit_expense' 0 %}" onsubmit="return submitEditExpenseForm();">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" id="expense-id">
+                        <div>
+                            <label for="amount">Amount:</label>
+                            <input type="number" name="amount" id="expense-amount" required>
+                        </div>
+                        <div>
+                            <label for="description">Description:</label>
+                            <input type="text" name="description" id="expense-description" required>
+                        </div>
+                        <div>
+                            <label for="payment_method">Payment Method:</label>
+                            <select name="payment_method" id="expense-payment-method" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Debit Card">Debit Card</option>
+                                <option value="Online Payment">Online Payment</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="date">Date:</label>
+                            <input type="date" name="date" id="expense-date" required>
+                        </div>
+                        <div>
+                            <label for="borrowed">Borrowed:</label>
+                            <input type="checkbox" name="borrowed" id="expense-borrowed">
+                        </div>
+                        <button type="submit">Update Expense</button>
+                    </form>
+                </div>
+            </div>
+    
+            <!-- Edit Salary Modal -->
+            <div id="editSalaryModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span onclick="closeSalaryModal()" style="float:right;cursor:pointer;">&times;</span>
+                    <h2>Edit Salary</h2>
+                    <form id="editSalaryForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" id="edit-salary-id">
+                        <div>
+                            <label for="edit-salary-amount">Amount:</label>
+                            <input type="number" name="amount" id="edit-salary-amount" required>
+                        </div>
+                        <div>
+                            <label for="edit-salary-date">Date:</label>
+                            <input type="date" name="date" id="edit-salary-date" required>
+                        </div>
+                        <button type="submit">Update Salary</button>
+                    </form>
+                </div>
+            </div>
+    
+            <script>
+                // Toggle Salary Form visibility
+                function toggleSalaryForm() {
+                    const salaryForm = document.getElementById('addSalaryForm');
+                    salaryForm.style.display = salaryForm.style.display === 'none' ? 'block' : 'none';
+                }
+    
+                function toggleExpenses() {
+                    const expensesSection = document.getElementById('expensesSection');
+                    expensesSection.style.display = expensesSection.style.display === 'none' ? 'block' : 'none';
+                }
+    
+                function openEditSalaryModal(id) {
+                    fetch(`/salary/get/${id}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('edit-salary-id').value = data.id;
+                            document.getElementById('edit-salary-amount').value = data.amount;
+                            document.getElementById('edit-salary-date').value = data.date;
+                            document.getElementById('editSalaryModal').style.display = 'block';
+                        });
+                }
+    
+                function closeSalaryModal() {
+                    document.getElementById('editSalaryModal').style.display = 'none';
+                }
+    
+                document.getElementById('editSalaryForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    fetch(`/salary/update/`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Salary updated successfully!');
+                            location.reload();
+                        } else {
+                            alert('Failed to update salary.');
+                        }
+                    });
+                });
+    
+                // Handle salary form submission
+                document.getElementById('salaryForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const salaryData = new FormData(this);
+    fetch(`/salary/add/`, {
+        method: 'POST',
+        body: salaryData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Salary added successfully!');
+            // Update the net worth displayed on the page
+            document.getElementById('netWorthDisplay').innerText = 'Net Worth: ₹' + data.net_worth;
+            // Optionally reload the page to show the updated salary table
+            location.reload();
+        } else {
+            alert('Failed to add salary.');
+        }
+    });
+});
+
+            // Handle Expense Modal
+            function openEditExpenseModal(id) {
+                fetch(`/expense/get/${id}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('expense-id').value = data.id;
+                        document.getElementById('expense-amount').value = data.amount;
+                        document.getElementById('expense-description').value = data.description;
+                        document.getElementById('expense-payment-method').value = data.payment_method;
+                        document.getElementById('expense-date').value = data.date;
+                        document.getElementById('expense-borrowed').checked = data.borrowed;
+                        document.getElementById('editExpenseModal').style.display = 'block';
+                    });
+            }
+
+            function closeEditExpenseModal() {
+                document.getElementById('editExpenseModal').style.display = 'none';
+            }
+
+            document.getElementById('editExpenseForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                fetch(`/expense/update/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Expense updated successfully!');
+                        location.reload();
+                    } else {
+                        alert('Failed to update expense.');
+                    }
+                });
+            });
+            function toggleSalaryTable() {
+    const salaryTable = document.getElementById('salaryTable');
+    const salaryForm = document.getElementById('addSalaryForm');
+
+    if (salaryTable.style.display === 'none' || salaryTable.style.display === '') {
+        salaryTable.style.display = 'block';
+        salaryForm.style.display = 'none'; // Hide the form when showing the table
+    } else {
+        salaryTable.style.display = 'none';
+    }
+}
+        </script>
+    </div>
+</body>
+</html>

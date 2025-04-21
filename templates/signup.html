@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    {% load static %}  <!-- Load the static files template tag -->
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+</head>
+<body>
+    <form method="POST">
+        <h1>Signup</h1>
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Signup</button>
+        <a href="{% url 'login' %}">Already have an account? Login</a>
+    </form>
+
+    <script>
+        document.getElementById('expense-form').onsubmit = function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/add-expense/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Handle success or error
+    });
+};
+    </script>
+</body>
+</html>
+

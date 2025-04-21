@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Future Plans</title>
+    {% load static %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/future_plans.css' %}">
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back();">
+        <i class="fa fa-arrow-left"></i>
+    </button>
+    <button class="home-btn" onclick="window.location.href='/home'">
+        <i class="fas fa-home"></i>
+    </button>
+
+    <div class="container">
+        <div class="left-section">
+            <h2>Log Future Plans</h2>
+            <form method="POST" action="{% url 'future_plans' %}">
+                {% csrf_token %}
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required><br>
+
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea><br>
+
+                <label for="target_date">Target Date:</label>
+                <input type="date" id="target_date" name="target_date" required><br>
+
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select><br>
+
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select><br>
+
+                <label for="email_reminder">Receive Email Reminder:</label>
+                <input type="checkbox" id="email_reminder" name="email_reminder"><br>
+
+                <button type="submit">Add Future Plan</button>
+            </form>
+        </div>
+
+        <div class="right-section">
+            <h3>Your Future Plans</h3>
+            <div class="plans-list">
+                {% for plan in plans %}
+                    <div class="plan">
+                        <h4>{{ plan.title }}</h4>
+                        <p>{{ plan.description }}</p>
+                        <p><strong>Target Date:</strong> {{ plan.target_date }}</p>
+                        <p><strong>Priority:</strong> {{ plan.priority }}</p>
+                        <p><strong>Status:</strong> {{ plan.status }}</p>
+                        <p><strong>Email Reminder:</strong> {% if plan.email_reminder %}Yes{% else %}No{% endif %}</p>
+                        <a href="#" onclick="openEditModal({{ plan.id }}); return false;">Edit</a> | 
+                        <a href="{% url 'delete_future_plan' plan.id %}" onclick="return confirm('Are you sure you want to delete this plan?');">Delete</a>
+                    </div>
+                {% empty %}
+                    <p>No future plans added yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Future Plan Modal -->
+    <div id="editPlanModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="float:right;cursor:pointer;">&times;</span>
+            <h2>Edit Future Plan</h2>
+            <form id="editFuturePlanForm">
+                {% csrf_token %}
+                <input type="hidden" name="id" id="edit-id">
+                <div>
+                    <label for="edit-title">Title:</label>
+                    <input type="text" name="title" id="edit-title" required>
+                </div>
+                <div>
+                    <label for="edit-description">Description:</label>
+                    <textarea name="description" id="edit-description" required></textarea>
+                </div>
+                <div>
+                    <label for="edit-target_date">Target Date:</label>
+                    <input type="date" name="target_date" id="edit-target_date" required>
+                </div>
+                <div>
+                    <label for="edit-priority">Priority:</label>
+                    <select name="priority" id="edit-priority">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="edit-status">Status:</label>
+                    <select name="status" id="edit-status">
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="edit-email_reminder">Receive Email Reminder:</label>
+                    <input type="checkbox" name="email_reminder" id="edit-email_reminder">
+                </div>
+                <button type="submit">Update Future Plan</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id) {
+            fetch(`/future_plans/get/${id}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('edit-id').value = data.id;
+                    document.getElementById('edit-title').value = data.title;
+                    document.getElementById('edit-description').value = data.description;
+                    document.getElementById('edit-target_date').value = data.target_date;
+                    document.getElementById('edit-priority').value = data.priority;
+                    document.getElementById('edit-status').value = data.status;
+                    document.getElementById('edit-email_reminder').checked = data.email_reminder;
+                    document.getElementById('editPlanModal').style.display = 'block';
+                });
+        }
+
+        function closeModal() {
+            document.getElementById('editPlanModal').style.display = 'none';
+        }
+
+        document.getElementById('editFuturePlanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('/future_plans/update/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Future plan updated successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to update.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
