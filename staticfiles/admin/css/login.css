@@ -1,0 +1,95 @@
+/* Redesigned LOGIN FORM */
+
+.login {
+    background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login #container {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+.login #header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login #header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.login #header h1 a {
+    text-decoration: none;
+    color: #2980b9;
+}
+
+.login .form-row {
+    margin-bottom: 1rem;
+}
+
+.login .form-row label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #7e19c6;
+    font-weight: 500;
+}
+
+.login .form-row input {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+
+.login .form-row input:focus {
+    outline: none;
+    border-color: #2980b9;
+}
+
+.login .submit-row {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.login .submit-row input[type="submit"] {
+    background-color: #2980b9;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.login .submit-row input[type="submit"]:hover {
+    background-color: #1f6391;
+}
+
+.login .password-reset-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.login .password-reset-link a {
+    color: #2980b9;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.login .password-reset-link a:hover {
+    text-decoration: underline;
+}

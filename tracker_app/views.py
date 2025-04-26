@@ -320,6 +320,9 @@ def send_future_plan_reminder(plan):
     send_mail(subject, message, email_from, recipient_list)
 
 # Future plans view (with email reminder functionality)
+from django.utils import timezone
+from datetime import timedelta
+
 def future_plans(request):
     if request.method == 'POST':
         # Handle future plans submission
@@ -328,7 +331,9 @@ def future_plans(request):
         target_date = request.POST['target_date']
         priority = request.POST['priority']
         status = request.POST['status']
-        email_reminder = request.POST.get('email_reminder', False)
+        
+        # Convert email_reminder to boolean
+        email_reminder = request.POST.get('email_reminder') == 'on'  # This will be True if checked, False otherwise
         
         # Create a new future plan
         plan = FuturePlan.objects.create(
@@ -343,7 +348,10 @@ def future_plans(request):
 
         # If email reminder is enabled, set up the reminder
         if email_reminder:
-            reminder_date = timezone.datetime.strptime(target_date, '%Y-%m-%d') - timedelta(days=1)
+            # Convert target_date to a timezone-aware datetime
+            target_date_aware = timezone.make_aware(timezone.datetime.strptime(target_date, '%Y-%m-%d'))
+            reminder_date = target_date_aware - timedelta(days=1)  # Reminder set for one day before the target date
+            
             if reminder_date > timezone.now():
                 # Schedule the email reminder to be sent the day before the target date
                 send_future_plan_reminder(plan)

@@ -18,6 +18,7 @@ body {
     background-color: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    perspective: 1000px; /* Enable 3D perspective */
 }
 
 h1, h2 {
@@ -28,15 +29,20 @@ h1 {
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 20px;
+    transform: rotateY(0deg);
+    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
 }
 
 h2 {
     font-size: 1.75rem;
     margin-top: 30px;
+    transform: rotateY(0deg);
+    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
 }
 
 .row {
     display: flex;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
     justify-content: space-between;
 }
 
@@ -46,6 +52,13 @@ h2 {
     background-color: #f9f9f9; /* Light background for contrast */
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    transform: rotateY(0deg);
+    animation: slideIn 0.5s ease-in-out; /* Slide-in animation */
+    transition: transform 0.3s; /* Smooth transition for hover effect */
+}
+
+.left-column:hover, .right-column:hover {
+    transform: rotateY(10deg) scale(1.02); /* 3D hover effect */
 }
 
 .left-column {
@@ -94,13 +107,14 @@ button.toggle-button {
     border-radius: 5px;
     cursor: pointer;
     width: 100%;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s; /* Add transform transition */
 }
 
 button[type="submit"]:hover,
 button#toggleSalaryForm:hover,
 button.toggle-button:hover {
     background-color: #0056b3; /* Darker blue on hover */
+    transform: translateZ(10px); /* Lift button on hover */
 }
 
 /* Back button */
@@ -167,15 +181,12 @@ button#toggleSalaryTable:hover {
     width: 90%;
     max-width: 600px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transform: translateZ(50px); /* Add depth to the modal */
+    transition: transform 0.3s; /* Smooth transition for modal */
 }
 
-.modal span {
-    font-size: 1.5rem;
-    color: #333;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 20px;
+.modal-content:hover {
+    transform: scale(1.05); /* Slightly enlarge modal on hover */
 }
 
 /* Home Button */
@@ -190,26 +201,13 @@ button#toggleSalaryTable:hover {
     font-size: 1.2rem;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s; /* Add transform transition */
     z-index: 1000; /* Ensure it appears above other elements */
 }
 
 .home-btn:hover {
     background-color: #0056b3; /* Darker blue on hover */
-}
-
-/* Back Button */
-.back-btn {
-    background: none;
-    border: none;
-    color: #007bff;
-    font-size: 1.5rem;
-    cursor: pointer;
-    margin-top: 10px;
-    position: absolute;
-    top: 20px; /* Adjust as needed */
-    left: 20px; /* Adjust as needed */
-    z-index: 1000; /* Ensure it appears above other elements */
+    transform: translateZ(10px); /* Lift button on hover */
 }
 
 /* Font Awesome Icon Styles */
@@ -225,11 +223,12 @@ button#toggleSalaryTable:hover {
     font-size: 1rem;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s; /* Add transform transition */
 }
 
 .toggle-button:hover {
     background-color: #218838; /* Darker green on hover */
+    transform: translateZ(10px); /* Lift button on hover */
 }
 
 /* Salary Styles */
@@ -242,24 +241,6 @@ button#toggleSalaryTable:hover {
 .spent-amount {
     color: #dc3545; /* Red color for spent amounts */
     font-weight: bold; /* Make it bold for emphasis */
-}
-
-/* Example styles for tables */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-th {
-    background-color: #f4f4f4;
 }
 
 /* Total Spent Styles */
@@ -285,6 +266,7 @@ th {
     color: #dc3545; /* Red color for negative remaining */
     font-weight: bold; /* Make it bold for emphasis */
 }
+
 /* Edit Button Styles */
 .edit-button {
     color: #007bff; /* Blue color for edit button */
@@ -306,8 +288,31 @@ th {
 .delete-button:hover {
     text-decoration: underline; /* Underline on hover */
 }
-/* Other existing styles... */
-/* Responsive */
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
     .container {
         padding: 15px;
@@ -321,6 +326,16 @@ th {
         font-size: 1.5rem;
     }
 
+    .row {
+        flex-direction: column; /* Stack columns vertically on smaller screens */
+    }
+
+    .left-column, .right-column {
+        width: 100%; /* Full width for columns on smaller screens */
+        margin-right: 0; /* Remove right margin */
+        margin-left: 0; /* Remove left margin */
+    }
+
     table th, table td {
         font-size: 0.875rem;
         padding: 8px;
@@ -329,11 +344,11 @@ th {
     button[type="submit"],
     button#toggleSalaryForm,
     button.toggle-button {
-        width: 100%;
+        width: 100%; /* Full width for buttons */
     }
 
     .modal-content {
-        width: 100%;
+        width: 100%; /* Full width for modal on smaller screens */
     }
 
     .back-btn {
@@ -356,7 +371,7 @@ th {
     }
 
     form {
-        gap: 10px;
+        gap: 10px; /* Reduce gap between form elements */
     }
 
     input[type="number"],
@@ -367,8 +382,6 @@ th {
         font-size: 0.875rem;
     }
 
-    button[type="submit"],
-    button#toggleSalaryForm,
     button[type="submit"],
     button#toggleSalaryForm,
     button.toggle-button {
@@ -384,4 +397,4 @@ th {
         font-size: 0.85rem;
     }
 }
-
+        

@@ -31,14 +31,16 @@ ALLOWED_HOSTS = ['52.66.244.89']
 # Application definition
 
 INSTALLED_APPS = [
+    # Other apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles',  # Only one entry for staticfiles
     'tracker_app',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -122,9 +124,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# If you have a directory for static files, you can specify it like this:
+# Ensure this is defined to collect static files properly
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Adjust this path if your static files are in a different location
+    os.path.join(BASE_DIR, 'static'),  # Your static folder where CSS/JS are located
 ]
 
 # Default primary key field type

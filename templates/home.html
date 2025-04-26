@@ -4,23 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    {% load static %}  <!-- Load the static files template tag -->
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-    <h1>Welcome, {{ request.user.username|capfirst }}!</h1>
 
-    <ul>
-        <li><a href="{% url 'expense' %}"><i class="fa fa-dollar"></i> Expense Tracker</a></li>
-        <li><a href="{% url 'routine' %}"><i class="fa fa-calendar"></i> Daily Routine</a></li>
-        <li><a href="{% url 'future_plans' %}"><i class="fa fa-lightbulb-o"></i> Future Plans</a></li>
-        <li><a href="{% url 'analytics' %}"><i class="fa fa-bar-chart"></i> Analytics</a></li>
-        <li><a href="{% url 'login' %}"><i class="fa fa-sign-out"></i> Logout</a></li>
-    </ul>
+    <div class="background-animation"></div>
 
-    <footer>
-        <p>&copy; 2025 All rights reserved.</p>
-    </footer>
+    <div class="container">
+        <h1>Welcome, {{ request.user.username|capfirst }}!</h1>
+
+        <ul class="nav-list">
+            <li><a href="{% url 'expense' %}" class="nav-item"><i class="fa fa-dollar"></i> Expense</a></li>
+            <li><a href="{% url 'routine' %}" class="nav-item"><i class="fa fa-calendar"></i> Daily Routine</a></li>
+            <li><a href="{% url 'future_plans' %}" class="nav-item"><i class="fa fa-lightbulb-o"></i> Future Plans</a></li>
+            <li><a href="{% url 'analytics' %}" class="nav-item"><i class="fa fa-bar-chart"></i> Analytics</a></li>
+            <li><a href="{% url 'login' %}" class="nav-item"><i class="fa fa-sign-out"></i> Logout</a></li>
+        </ul>
+
+        <footer>
+            <p>&copy; 2025 All rights reserved.</p>
+        </footer>
+    </div>
+
+<script>
+    // 3D hover effect
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('mousemove', (e) => {
+            const rect = item.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            item.style.transform = `perspective(600px) rotateX(${-(y - rect.height/2) / 20}deg) rotateY(${(x - rect.width/2) / 20}deg)`;
+        });
+        item.addEventListener('mouseleave', () => {
+            item.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg)';
+        });
+    });
+</script>
+
 </body>
 </html>

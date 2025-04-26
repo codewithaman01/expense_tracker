@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
 from .models import Expense, Salary, FixedExpense, Routine, FuturePlan
+from django.contrib.admin import AdminSite
 
 # Custom form for User admin to handle password changes
 class UserChangeForm(forms.ModelForm):
@@ -29,10 +30,6 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_staff', 'is_active')
     search_fields = ('username', 'email')
     ordering = ('username',)
-
-# Unregister the default User admin and register the custom one
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
 
 # Admin for Expense model
 @admin.register(Expense)
@@ -73,3 +70,32 @@ class FuturePlanAdmin(admin.ModelAdmin):
     list_filter = ('user', 'priority', 'status', 'email_reminder', 'target_date')
     search_fields = ('title', 'description')
     date_hierarchy = 'target_date'
+
+# Create a custom admin site
+class CustomAdminSite(AdminSite):
+    site_header = 'Administration'  # Customize the header
+    site_title = 'Admin Panel'  # Customize the title
+    index_title = 'Welcome to the Admin Panel'  # Customize the index page title
+    
+    # Override the Media class to add custom CSS
+    class Media:
+        css = {
+            'all': ('css/custom_admin.css', 'css/expense.css', 'css/future_plan.css', 'css/routine.css')
+        }
+        js = ('js/admin_custom.js',)
+
+# Instantiate the custom admin site
+admin_site = CustomAdminSite(name='custom_admin')
+
+# Unregister the User model from the default admin site
+admin.site.unregister(User)
+
+# Register the User model with the custom admin site
+admin_site.register(User, UserAdmin)
+
+# Register other models with the custom admin site
+admin_site.register(Expense, ExpenseAdmin)
+admin_site.register(Salary, SalaryAdmin)
+admin_site.register(FixedExpense, FixedExpenseAdmin)
+admin_site.register(Routine, RoutineAdmin)
+admin_site.register(FuturePlan, FuturePlanAdmin)

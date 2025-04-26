@@ -16,25 +16,25 @@
         <i class="fas fa-home"></i>
     </button>
     <div class="container">
-        <h1>Expense Tracker</h1>
+        <h1 class="animate">Expense Tracker</h1>
 
         <div class="row">
-            <div class="left-column">
+            <div class="left-column animate">
                 <h2>Financial Summary</h2>
-                <p>Total Spent Till Date: ₹{{ total_amount }}</p>
-                <p id="netWorthDisplay">Net Worth: ₹{{ net_worth }}</p> <!-- Updated to have an ID for easy access -->
+                <p>Total Spent Till Date: <span style="color: #dc3545; font-weight: bold;">₹{{ total_amount }}</span></p>
+                <p id="netWorthDisplay">Net Worth:<span style="color: #088d34; font-weight: bold;"> ₹{{ net_worth }}</p>
                 
-                <h2>Add Salary/Pocket Money</h2>
+                <h2 style="margin-bottom: 10px;">Add Salary/Pocket Money</h2>
                 <button id="toggleSalaryForm" onclick="toggleSalaryForm()">Add Salary/Pocket Money</button>
                 <div id="addSalaryForm" style="display: none;">
                     <form method="POST" id="salaryForm">
                         {% csrf_token %}
                         <div>
-                            <label for="salary-amount">Salary Amount:</label>
+                            <label for="salary-amount" style="margin-top: 10px;">Salary Amount:</label>
                             <input type="number" name="amount" id="salary-amount" required>
                         </div>
                         <div>
-                            <label for="salary-date">Date:</label>
+                            <label for="salary-date" style="margin-top: 10px;">Date:</label>
                             <input type="date" name="date" id="salary-date" required>
                         </div>
                         <button type="submit">Add Salary/Pocket Money</button>
@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <div class="right-column">
+            <div class="right-column animate">
                 <h2>Add New Expense</h2>
                 <form method="POST">
                     {% csrf_token %}
@@ -255,81 +255,83 @@
     
                 // Handle salary form submission
                 document.getElementById('salaryForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const salaryData = new FormData(this);
-    fetch(`/salary/add/`, {
-        method: 'POST',
-        body: salaryData,
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Salary added successfully!');
-            // Update the net worth displayed on the page
-            document.getElementById('netWorthDisplay').innerText = 'Net Worth: ₹' + data.net_worth;
-            // Optionally reload the page to show the updated salary table
-            location.reload();
-        } else {
-            alert('Failed to add salary.');
-        }
-    });
-});
-
-            // Handle Expense Modal
-            function openEditExpenseModal(id) {
-                fetch(`/expense/get/${id}/`)
+                    e.preventDefault();
+                    const salaryData = new FormData(this);
+                    fetch(`/salary/add/`, {
+                        method: 'POST',
+                        body: salaryData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('expense-id').value = data.id;
-                        document.getElementById('expense-amount').value = data.amount;
-                        document.getElementById('expense-description').value = data.description;
-                        document.getElementById('expense-payment-method').value = data.payment_method;
-                        document.getElementById('expense-date').value = data.date;
-                        document.getElementById('expense-borrowed').checked = data.borrowed;
-                        document.getElementById('editExpenseModal').style.display = 'block';
+                        if (data.success) {
+                            alert('Salary added successfully!');
+                            // Update the net worth displayed on the page
+                            document.getElementById('netWorthDisplay').innerText = 'Net Worth: ₹' + data.net_worth;
+                            // Optionally reload the page to show the updated salary table
+                            location.reload();
+                        } else {
+                            alert('Failed to add salary.');
+                        }
                     });
-            }
-
-            function closeEditExpenseModal() {
-                document.getElementById('editExpenseModal').style.display = 'none';
-            }
-
-            document.getElementById('editExpenseForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                fetch(`/expense/update/`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Expense updated successfully!');
-                        location.reload();
-                    } else {
-                        alert('Failed to update expense.');
-                    }
                 });
-            });
-            function toggleSalaryTable() {
-    const salaryTable = document.getElementById('salaryTable');
-    const salaryForm = document.getElementById('addSalaryForm');
 
-    if (salaryTable.style.display === 'none' || salaryTable.style.display === '') {
-        salaryTable.style.display = 'block';
-        salaryForm.style.display = 'none'; // Hide the form when showing the table
-    } else {
-        salaryTable.style.display = 'none';
-    }
-}
-        </script>
-    </div>
-</body>
-</html>
+                // Handle Expense Modal
+                function openEditExpenseModal(id) {
+                    fetch(`/expense/get/${id}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('expense-id').value = data.id;
+                            document.getElementById('expense-amount').value = data.amount;
+                            document.getElementById('expense-description').value = data.description;
+                            document.getElementById('expense-payment-method').value = data.payment_method;
+                            document.getElementById('expense-date').value = data.date;
+                            document.getElementById('expense-borrowed').checked = data.borrowed;
+                            document.getElementById('editExpenseModal').style.display = 'block';
+                        });
+                }
+
+                function closeEditExpenseModal() {
+                    document.getElementById('editExpenseModal').style.display = 'none';
+                }
+
+                document.getElementById('editExpenseForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    fetch(`/expense/update/`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Expense updated successfully!');
+                            location.reload();
+                        } else {
+                            alert('Failed to update expense.');
+                        }
+                    });
+                });
+
+                function toggleSalaryTable() {
+                    const salaryTable = document.getElementById('salaryTable');
+                    const salaryForm = document.getElementById('addSalaryForm');
+
+                    if (salaryTable.style.display === 'none' || salaryTable.style.display === '') {
+                        salaryTable.style.display = 'block';
+                        salaryForm.style.display = 'none'; // Hide the form when showing the table
+                    } else {
+                        salaryTable.style.display = 'none';
+                    }
+                }
+            </script>
+            </div>
+        </div>
+    </body>
+    </htm

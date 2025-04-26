@@ -1,0 +1,29 @@
+/* Change the background color of the header */
+.header, .navbar {
+    background-color: #4CAF50;  /* Example: Green color */
+}
+
+/* Change the text color of the header */
+.header h1, .navbar .navbar-header a {
+    color: #FFFFFF;  /* White text */
+}
+
+/* Change the background color of the sidebar */
+.sidebar {
+    background-color: #333333;  /* Dark Gray */
+}
+
+/* Change the text color in the sidebar */
+.sidebar a {
+    color: #FFFFFF;  /* White text */
+}
+
+/* Change the color of the button */
+.btn-primary {
+    background-color: #FF5722;  /* Example: Orange color */
+}
+
+/* Hover color for buttons */
+.btn-primary:hover {
+    background-color: #E64A19;  /* Darker orange */
+}
