@@ -79,10 +79,10 @@ WSGI_APPLICATION = 'tracker_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
-        'OPTIONS': {
-            'timeout': 10,  # wait up to 20 seconds if the DB is locked
+        'ENGINE': 'djongo',
+        'NAME': 'Expense',   # database name you created
+        'CLIENT': {
+            'host': 'mongodb+srv://aramanraj01:tNoXW7ZsLpOJCxvg@cluster0.ephjclx.mongodb.net/?retryWrites=true&w=majority',
         }
     }
 }
