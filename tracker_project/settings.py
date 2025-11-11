@@ -9,6 +9,10 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+# Fix djongo boolean evaluation bug during connection close
+from pymongo.database import Database
+Database.__bool__ = lambda self: True
+Database.__nonzero__ = Database.__bool__
 
 from pathlib import Path
 import os
