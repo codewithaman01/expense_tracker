@@ -85,14 +85,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'Expense',
-        'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': 'mongodb+srv://aramanraj01:tNoXW7ZsLpOJCxvg@cluster0.ephjclx.mongodb.net/?retryWrites=true&w=majority',
+            'host': 'mongodb+srv://aramanraj01:tNoXW7ZsLpOJCxvg@cluster0.ephjclx.mongodb.net/Expense?retryWrites=true&w=majority',
         }
     }
 }
-
-CONN_MAX_AGE = None  # Keep DB connection open
 
 
 # Password validation
